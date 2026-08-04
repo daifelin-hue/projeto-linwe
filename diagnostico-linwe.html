@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico LINWE - 4 Pilares</title>
+    <style>
+        :root {
+            --navy: #1a2a4a;
+            --navy-dark: #0f1b33;
+            --gold: #c9a227;
+            --gold-light: #e0c15a;
+            --white: #ffffff;
+            --gray-light: #f4f7f9;
+            --gray-text: #4a5568;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--gray-light);
+            color: var(--navy);
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px 40px; }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+            color: var(--white);
+            padding: 40px 20px;
+            border-radius: 0 0 20px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-bottom: 5px solid var(--gold);
+            margin-bottom: 30px;
+        }
+        .logo-header { margin-bottom: 20px; }
+        .logo-header img { height: 70px; max-width: 280px; object-fit: contain; }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.02em; }
+        .header .subtitle { color: var(--gold-light); font-weight: 600; text-transform: uppercase; font-size: 14px; letter-spacing: 2px; }
+        .header .tagline { font-size: 13px; margin-top: 10px; opacity: 0.8; }
+        .header .tagline .gold-text { color: var(--gold-light); font-weight: bold; }
+
+        .empresa-input-container { margin-top: 25px; }
+        .empresa-input-container input {
+            width: 100%; max-width: 400px; padding: 12px 20px; border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+            color: white; font-size: 16px; text-align: center; outline: none;
+        }
+        .empresa-input-container input:focus { border-color: var(--gold); }
+        .empresa-input-container input::placeholder { color: rgba(255,255,255,0.5); }
+
+        /* PROGRESS */
+        .progress-container { background: #cbd5e0; height: 8px; width: 100%; border-radius: 4px; margin-bottom: 30px; overflow: hidden; }
+        .progress-bar { background: linear-gradient(90deg, var(--gold), var(--gold-light)); height: 100%; width: 0%; transition: width 0.4s ease; }
+
+        /* TABS */
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .tab {
+            flex: 1; min-width: 140px; padding: 15px 10px; background: #edf2f7; text-align: center;
+            cursor: pointer; font-weight: 700; font-size: 13px; border-radius: 10px; color: var(--gray-text);
+            transition: 0.3s; border: 2px solid transparent;
+        }
+        .tab.active { background: var(--white); color: var(--navy); border-color: var(--navy); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+        /* CONTENT */
+        .pillar-content { display: none; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .pillar-content.active { display: block; }
+
+        .question-card { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px solid var(--border); }
+        .question-card:last-child { border-bottom: none; margin-bottom: 0; }
+        .question-text { font-weight: 600; font-size: 16px; margin-bottom: 20px; display: flex; gap: 10px; }
+        .question-num { color: var(--gold); font-weight: 800; }
+
+        .rating-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .rating-box { display: flex; flex-direction: column; gap: 10px; }
+        .rating-title { font-size: 12px; font-weight: 800; color: var(--gray-text); text-transform: uppercase; letter-spacing: 1px; }
+
+        .options { display: flex; justify-content: space-between; gap: 5px; }
+        .option { flex: 1; text-align: center; cursor: pointer; }
+        .option input { display: none; }
+        .option-circle {
+            height: 40px; width: 40px; border: 2px solid var(--border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 5px;
+            font-weight: 700; transition: 0.2s; color: var(--gray-text);
+        }
+        .option input:checked + .option-circle { background: var(--navy); color: white; border-color: var(--navy); transform: scale(1.1); }
+        .option-label { font-size: 9px; color: #718096; display: block; line-height: 1.1; }
+
+        /* NAVIGATION */
+        .nav-actions { display: flex; justify-content: space-between; margin-top: 30px; }
+        button {
+            padding: 15px 30px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .btn-prev { background: #e2e8f0; color: var(--gray-text); }
+        .btn-next { background: var(--navy); color: white; }
+        .btn-finish { background: var(--gold); color: var(--navy-dark); }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* RESULTS */
+        .results-section { display: none; background: var(--white); padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .results-header { text-align: center; margin-bottom: 40px; }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .summary-card { background: var(--navy-dark); color: white; padding: 25px; border-radius: 15px; text-align: center; }
+        .summary-card h4 { font-size: 12px; text-transform: uppercase; opacity: 0.7; margin-bottom: 10px; }
+        .summary-card .val { font-size: 32px; font-weight: 800; color: var(--gold-light); }
+
+        .pillar-report { border: 1px solid var(--border); border-radius: 15px; padding: 25px; margin-bottom: 20px; }
+        .pillar-report-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .badge { padding: 6px 15px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: white; }
+        .rec-area { background: #fffaf0; border-left: 4px solid var(--gold); padding: 20px; margin-top: 15px; border-radius: 0 8px 8px 0; }
+        .service-info { margin-top: 15px; font-size: 13px; font-weight: 700; color: var(--navy); }
+
+        .actions-footer { display: flex; gap: 15px; justify-content: center; margin-top: 40px; }
+        .btn-print { background: var(--navy); color: white; }
+        .btn-reset { background: #f56565; color: white; }
+
+        /* FOOTER */
+        .footer { text-align: center; padding: 50px 20px; border-top: 1px solid var(--border); margin-top: 40px; }
+        .logo-footer { margin-bottom: 15px; }
+        .logo-footer img { height: 50px; max-width: 220px; object-fit: contain; }
+        .footer-text { font-size: 12px; color: var(--gray-text); font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .rating-container { grid-template-columns: 1fr; }
+            .tabs { flex-wrap: nowrap; }
+        }
+
+        @media print {
+            .header, .tabs, .nav-actions, .actions-footer, .progress-container { display: none !important; }
+            .results-section { display: block !important; box-shadow: none; padding: 0; }
+            .container { width: 100%; max-width: none; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <div class="logo-header">
+            <img src="LOGO-LINWE.png" alt="LINWE">
+        </div>
+        <h1>Diagnóstico Empresarial</h1>
+        <div class="subtitle">Consultoria e Desenvolvimento</div>
+        <div class="tagline">Pessoas | <span class="gold-text">Processos</span> | Resultados</div>
+
+        <div class="empresa-input-container">
+            <input type="text" id="empresaNome" placeholder="Nome da Empresa Avaliada" oninput="saveToLocal()">
+        </div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <main id="formWrapper">
+        <nav class="tabs" id="tabNav"></nav>
+        <div id="pillarsWrapper"></div>
+
+        <div class="nav-actions">
+            <button class="btn-prev" id="btnPrev" onclick="moveTab(-1)">Anterior</button>
+            <button class="btn-next" id="btnNext" onclick="moveTab(1)">Próximo</button>
+            <button class="btn-finish" id="btnFinish" style="display:none;" onclick="showResults()">Ver Resultados</button>
+        </div>
+    </main>
+
+    <section class="results-section" id="resultsSection">
+        <div class="results-header">
+            <h2 id="resEmpresaNome">Relatório de Diagnóstico</h2>
+            <p>Análise de Maturidade dos 4 Pilares de Gestão</p>
+        </div>
+
+        <div class="results-grid" id="summaryGrid"></div>
+        <div id="detailedResults"></div>
+
+        <div class="actions-footer">
+            <button class="btn-print" onclick="window.print()">Imprimir PDF</button>
+            <button class="btn-reset" onclick="resetDiagnostic()">Novo Diagnóstico</button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="logo-footer">
+            <img src="LOGO-LINWE.png" alt="LINWE">
+        </div>
+        <div class="footer-text">
+            LINWE — Consultoria e Desenvolvimento<br>
+            Pessoas | <span style="color:var(--gold)">Processos</span> | Resultados
+        </div>
+    </footer>
+</div>
+
+<script>
+    const DATA = [
+        {
+            pilar: "Liderança",
+            perguntas: [
+                "Está definido para o líder as etapas mínimas diárias para acompanhar pessoas, processos e resultados?",
+                "Os papéis, responsabilidades e expectativas estão claros para toda a equipe (gestores e liderados)?",
+                "A comunicação e os feedbacks entre líderes e equipes é clara, padronizada e eficiente e baseada em fatos?",
+                "O time atual é composto por diferentes perfis comportamentais?",
+                "Os líderes desenvolvem autonomia, delegando responsabilidades e acompanhando a evolução da equipe?"
+            ],
+            rec: "Estruturar rotinas de liderança, clareza de responsabilidades, comunicação, feedback e delegação.",
+            servico: "Programa de Desenvolvimento de Lideranças",
+            prazo: "60 a 120 dias"
+        },
+        {
+            pilar: "Excelência Operacional",
+            perguntas: [
+                "Os principais processos estão padronizados e são conhecidos pelas equipes?",
+                "As atividades são executadas conforme os padrões definidos, reduzindo variações e retrabalhos?",
+                "Os problemas são analisados na causa raiz e tratados para evitar recorrências?",
+                "As equipes participam da identificação e implantação de melhorias nos processos?",
+                "As melhorias implantadas permanecem funcionando e gerando resultados ao longo do tempo?"
+            ],
+            rec: "Mapear, padronizar e melhorar processos, tratando causas, desperdícios e sustentação das melhorias.",
+            servico: "Mapeamento, Padronização e Melhoria de Processos",
+            prazo: "60 a 180 dias"
+        },
+        {
+            pilar: "Qualidade",
+            perguntas: [
+                "Os documentos, procedimentos e registros estão atualizados e controlados?",
+                "As não conformidades são registradas, tratadas e monitoradas?",
+                "Os treinamentos são planejados, executados e avaliados?",
+                "Os requisitos legais e regulatórios são controlados e acompanhados?",
+                "A empresa atua preventivamente na identificação e mitigação de riscos?"
+            ],
+            rec: "Fortalecer documentos, registros, treinamentos, não conformidades, riscos e requisitos regulatórios.",
+            servico: "Implantação e Fortalecimento do Sistema da Qualidade",
+            prazo: "90 a 180 dias"
+        },
+        {
+            pilar: "Gestão por Dados",
+            perguntas: [
+                "Existem indicadores definidos para acompanhar o desempenho da empresa?",
+                "Os indicadores são atualizados regularmente e possuem dados confiáveis?",
+                "Os indicadores possuem metas, responsáveis e critérios claros de acompanhamento?",
+                "As decisões da liderança são tomadas com base em dados e indicadores?",
+                "Quando um indicador apresenta desvio, são definidas ações e acompanhados os resultados?"
+            ],
+            rec: "Definir indicadores, metas, responsáveis, rituais de análise e planos para tratamento de desvios.",
+            servico: "Indicadores, Metas e Gestão à Vista",
+            prazo: "45 a 120 dias"
+        }
+    ];
+
+    let activeTab = 0;
+
+    function init() {
+        const nav = document.getElementById('tabNav');
+        const wrapper = document.getElementById('pillarsWrapper');
+
+        DATA.forEach((item, pIdx) => {
+            const tab = document.createElement('div');
+            tab.className = `tab ${pIdx === 0 ? 'active' : ''}`;
+            tab.innerText = item.pilar;
+            tab.onclick = () => setTab(pIdx);
+            nav.appendChild(tab);
+
+            const section = document.createElement('div');
+            section.className = `pillar-content ${pIdx === 0 ? 'active' : ''}`;
+
+            item.perguntas.forEach((q, qIdx) => {
+                const qNum = (pIdx * 5) + qIdx + 1;
+                section.innerHTML += `
+                    <div class="question-card">
+                        <div class="question-text"><span class="question-num">${qNum}.</span> ${q}</div>
+                        <div class="rating-container">
+                            <div class="rating-box">
+                                <span class="rating-title">Existe?</span>
+                                <div class="options">${renderOptions(pIdx, qIdx, 'e')}</div>
+                            </div>
+                            <div class="rating-box">
+                                <span class="rating-title">Funciona?</span>
+                                <div class="options">${renderOptions(pIdx, qIdx, 'f')}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            wrapper.appendChild(section);
+        });
+        loadFromLocal();
+        updateUI();
+    }
+
+    function renderOptions(pIdx, qIdx, type) {
+        const labelsE = ["", "Não existe", "Iniciando", "Parcial", "Estruturado", "Total"];
+        const labelsF = ["", "Não funciona", "Raramente", "Parcial", "Maioria", "Consistente"];
+        let html = "";
+        for (let i = 1; i <= 5; i++) {
+            html += `
+                <label class="option">
+                    <input type="radio" name="${type}_${pIdx}_${qIdx}" value="${i}" onchange="saveToLocal()">
+                    <div class="option-circle">${i}</div>
+                    <span class="option-label">${type === 'e' ? labelsE[i] : labelsF[i]}</span>
+                </label>
+            `;
+        }
+        return html;
+    }
+
+    function setTab(idx) {
+        activeTab = idx;
+        document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+        document.querySelectorAll('.pillar-content').forEach((s, i) => s.classList.toggle('active', i === idx));
+        updateUI();
+        window.scrollTo(0, 0);
+    }
+
+    function moveTab(step) {
+        const next = activeTab + step;
+        if (next >= 0 && next < DATA.length) setTab(next);
+    }
+
+    function updateUI() {
+        document.getElementById('btnPrev').style.visibility = activeTab === 0 ? 'hidden' : 'visible';
+        document.getElementById('btnNext').style.display = activeTab === DATA.length - 1 ? 'none' : 'block';
+        document.getElementById('btnFinish').style.display = activeTab === DATA.length - 1 ? 'block' : 'none';
+
+        const total = 40;
+        const answered = document.querySelectorAll('input:checked').length;
+        document.getElementById('progressBar').style.width = (answered / total * 100) + "%";
+    }
+
+    function saveToLocal() {
+        const state = {
+            empresa: document.getElementById('empresaNome').value,
+            respostas: {}
+        };
+        document.querySelectorAll('input:checked').forEach(input => {
+            state.respostas[input.name] = input.value;
+        });
+        localStorage.setItem('linwe_diagnostic', JSON.stringify(state));
+        updateUI();
+    }
+
+    function loadFromLocal() {
+        const saved = localStorage.getItem('linwe_diagnostic');
+        if (saved) {
+            const state = JSON.parse(saved);
+            document.getElementById('empresaNome').value = state.empresa || "";
+            for (const key in state.respostas) {
+                const el = document.querySelector(`input[name="${key}"][value="${state.respostas[key]}"]`);
+                if (el) el.checked = true;
+            }
+        }
+    }
+
+    function showResults() {
+        const empresa = document.getElementById('empresaNome').value;
+        if (!empresa) return alert("Por favor, informe o nome da empresa.");
+        if (document.querySelectorAll('input:checked').length < 40) return alert("Responda todas as questões antes de finalizar.");
+
+        document.getElementById('formWrapper').style.display = 'none';
+        document.getElementById('resultsSection').style.display = 'block';
+        document.getElementById('resEmpresaNome').innerText = empresa;
+
+        const results = DATA.map((p, pIdx) => {
+            let sE = 0, sF = 0;
+            for (let qIdx = 0; qIdx < 5; qIdx++) {
+                sE += parseInt(document.querySelector(`input[name="e_${pIdx}_${qIdx}"]:checked`).value);
+                sF += parseInt(document.querySelector(`input[name="f_${pIdx}_${qIdx}"]:checked`).value);
+            }
+            const mE = sE / 5;
+            const mF = sF / 5;
+            const mG = (mE + mF) / 2;
+            const idx = ((mE + mF) / 10) * 100;
+
+            let sit = "Não Implantado", cor = "#f56565";
+            if (mG >= 4) { sit = "Consolidado"; cor = "#48bb78"; }
+            else if (mG >= 3) { sit = "Em Desenvolvimento"; cor = "#ecc94b"; }
+            else if (mG >= 2) { sit = "Desconectado"; cor = "#ed8936"; }
+
+            let prio = "Baixa";
+            if (mG <= 2) prio = "Muito Alta";
+            else if (mG <= 2.5) prio = "Alta";
+            else if (mG <= 3.5) prio = "Média";
+
+            return { pilar: p.pilar, idx, sit, cor, prio, rec: p.rec, servico: p.servico, prazo: p.prazo };
+        });
+
+        const idxGeral = results.reduce((a, b) => a + b.idx, 0) / 4;
+        let mat = "Baixo";
+        if (idxGeral >= 80) mat = "Alto";
+        else if (idxGeral >= 60) mat = "Médio-Alto";
+        else if (idxGeral >= 40) mat = "Médio";
+        else if (idxGeral >= 20) mat = "Médio-Baixo";
+
+        document.getElementById('summaryGrid').innerHTML = `
+            <div class="summary-card"><h4>Índice Geral</h4><div class="val">${idxGeral.toFixed(1)}%</div></div>
+            <div class="summary-card"><h4>Maturidade</h4><div class="val">${mat}</div></div>
+        `;
+
+        let detailedHtml = "";
+        results.forEach(r => {
+            detailedHtml += `
+                <div class="pillar-report">
+                    <div class="pillar-report-head">
+                        <h3>${r.pilar}</h3>
+                        <span class="badge" style="background:${r.cor}">${r.sit}</span>
+                    </div>
+                    <div style="font-size:13px; margin-bottom:10px;">
+                        <strong>Índice:</strong> ${r.idx.toFixed(1)}% | <strong>Prioridade:</strong> ${r.prio}
+                    </div>
+                    <div class="rec-area">${r.rec}</div>
+                    <div class="service-info">Serviço: ${r.servico} | Prazo: ${r.prazo}</div>
+                </div>
+            `;
+        });
+        document.getElementById('detailedResults').innerHTML = detailedHtml;
+        window.scrollTo(0, 0);
+    }
+
+    function resetDiagnostic() {
+        if (confirm("Deseja iniciar um novo diagnóstico? Todos os dados atuais serão apagados.")) {
+            localStorage.removeItem('linwe_diagnostic');
+            location.reload();
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
